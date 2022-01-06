@@ -38,7 +38,6 @@ public class PlayerManager : MonoBehaviour
 
     #endregion
 
-
     #region Touch State
     public enum TouchState
     {
@@ -49,10 +48,9 @@ public class PlayerManager : MonoBehaviour
     public TouchState touchState = TouchState.none;
 
     float FirstTouch, lastTouch = 0;
+
     #endregion
 
-    /*public List<GameObject> leftStack = new List<GameObject>();
-    public List<GameObject> rightStack = new List<GameObject>();*/
     [SerializeField] HandPoolManager leftHand;
     [SerializeField] HandPoolManager rightHand;
     [SerializeField] Transform LeftBoxPoint, RightBoxPoint;
@@ -61,12 +59,13 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] int maxStackValue = 60;
     [SerializeField] float maxDegree = 30;
 
-    //Rigidbody rb;
-    
-    public GameObject Player;
-    public GameObject Stick;
+    Rigidbody rb;
 
-    
+    //public GameObject Player;
+    [SerializeField] Animator playerAnim;
+
+    [SerializeField] List<Rigidbody> Rigidbodies = new List<Rigidbody>();
+
 
     private void Awake()
     {
@@ -76,7 +75,9 @@ public class PlayerManager : MonoBehaviour
 
     void Start()
     {
-        //rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
+
+        FindRb(playerAnim.gameObject);
     }
 
 
@@ -149,12 +150,40 @@ public class PlayerManager : MonoBehaviour
 
     #endregion
 
-    private void OnCollisionEnter(Collision collision)
+    void FindRb(GameObject researchedObject)
     {
-        if (collision.transform.tag.Equals("Obstacle"))
+        if (researchedObject.GetComponent<Rigidbody>() != null)
+            Rigidbodies.Add(researchedObject.GetComponent<Rigidbody>());
+
+        for (int i = 0; i < researchedObject.transform.childCount; i++)
         {
-            //ragdol olma ve fail fonk
+            FindRb(researchedObject.transform.GetChild(i).gameObject);
         }
     }
 
+    void RagdollActivated()
+    {
+        foreach (var r in Rigidbodies)
+        {
+            r.isKinematic = false;
+        }
+    }
+
+    void FailTime()
+    {
+        playerAnim.enabled = false;
+        playerAnim.gameObject.GetComponent<RootMotion.FinalIK.FullBodyBipedIK>().enabled = false;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.transform.tag.Equals("Obstacle"))
+        {
+            FailTime();
+            RagdollActivated();
+            GameManager.instance.OnLevelFailed();
+        }
+    }
+
+   
 }

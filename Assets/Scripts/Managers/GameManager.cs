@@ -63,6 +63,8 @@ public class GameManager : MonoBehaviour
     {
         GamePanel.SetActive(false);
         LostPanel.SetActive(true);
+
+        isGameEnded = true;
     }
 
     #endregion
