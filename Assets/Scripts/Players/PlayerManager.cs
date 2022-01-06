@@ -51,9 +51,10 @@ public class PlayerManager : MonoBehaviour
     float FirstTouch, lastTouch = 0;
     #endregion
 
-    public List<GameObject> leftStack = new List<GameObject>();
-    public List<GameObject> rightStack = new List<GameObject>();
-
+    /*public List<GameObject> leftStack = new List<GameObject>();
+    public List<GameObject> rightStack = new List<GameObject>();*/
+    [SerializeField] HandPoolManager leftHand;
+    [SerializeField] HandPoolManager rightHand;
     [SerializeField] Transform LeftBoxPoint, RightBoxPoint;
 
     [Range(10, 100)]
@@ -88,7 +89,7 @@ public class PlayerManager : MonoBehaviour
         transform.DORotate(new Vector3(0, 0, CalcBalance()), 0.1f);
         SwipeMovement();
 
-        BoxesRotControl();
+        //BoxesRotControl();
     }
 
     #region Player Movement
@@ -113,9 +114,14 @@ public class PlayerManager : MonoBehaviour
                 touchState = TouchState.left;
                 //CollectableManager.instance.TakeCollectableToLeft(StickManager.instance.LeftBoxes, 0.3f);
                 if (isPlus)
-                    CollectableManager.instance.GetCollectableToLeft(LeftBoxPoint);
+                {
+                    //CollectableManager.instance.GetCollectableToLeft(LeftBoxPoint);
+                  StartCoroutine(  CollectableManager.instance.AddToStickSide(5, true));
+                }
                 else
-                    CollectableManager.instance.DecreaseBoxesLeft(leftStack);
+                {
+                    //CollectableManager.instance.DecreaseBoxesLeft(leftStack);
+                }
             }
 
             else
@@ -123,9 +129,14 @@ public class PlayerManager : MonoBehaviour
                 touchState = TouchState.right;
                 //CollectableManager.instance.TakeCollectableToRight(StickManager.instance.RightBoxes, 0.3f);
                 if (isPlus)
-                    CollectableManager.instance.GetCollectableToRight(RightBoxPoint);
+                {
+                    //CollectableManager.instance.GetCollectableToLeft(LeftBoxPoint);
+                    StartCoroutine(CollectableManager.instance.AddToStickSide(5, false));
+                }
                 else
-                    CollectableManager.instance.DecreaseBoxesRight(rightStack);
+                {
+                    //CollectableManager.instance.DecreaseBoxesLeft(leftStack);
+                }
             }
 
             touchState = TouchState.none;
@@ -145,11 +156,11 @@ public class PlayerManager : MonoBehaviour
         float rot = 0;
         bool isRight = true;
 
-        if(leftStack.Count > rightStack.Count)//will rotate left
+        if(leftHand._lastIndex> rightHand._lastIndex)//will rotate left
         {
             isRight = false;
         }
-        rot = ((leftStack.Count - rightStack.Count) * maxDegree) / maxStackValue;
+        rot = ((leftHand._lastIndex- rightHand._lastIndex) * maxDegree) / maxStackValue;
 
         if (isRight)
             return rot;
@@ -177,19 +188,19 @@ public class PlayerManager : MonoBehaviour
             CollectableManager.instance.CreateCollectable();
         }
     }
-
+    /*
     public void BoxesRotControl()
     {
-        for (int i = 0; i < leftStack.Count; i++)
+        for (int i = 0; i < leftHand._lastIndex; i++)
         {
-            leftStack[i].transform.localEulerAngles = Vector3.zero;
+            leftHand[i].transform.localEulerAngles = Vector3.zero;
         }
 
         for (int i = 0; i < rightStack.Count; i++)
         {
             rightStack[i].transform.localEulerAngles = Vector3.zero;
         }
-    }
+    }*/
 
     
 }

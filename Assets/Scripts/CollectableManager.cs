@@ -15,6 +15,8 @@ public class CollectableManager : MonoBehaviour
     [SerializeField] int collectableCount = 0;
     [SerializeField] int decreaseCount = 0;
 
+    [SerializeField] HandPoolManager leftHand;
+    [SerializeField] HandPoolManager rightHand;
     private void Awake()
     {
         if (instance == null)
@@ -27,28 +29,56 @@ public class CollectableManager : MonoBehaviour
     }
 
 
-    void Update()
-    {
-        
-    }
-
+    
     public void CreateCollectable()
     {
-        collectableCount = Random.Range(1, 30);
+        collectableCount = 30;
 
         for (int i = 0; i < collectableCount; i++)
         {
             GameObject collectableBox = Instantiate(collectablePrefab, collectablePoint.position, Quaternion.identity, this.transform);
-
-            collectableBox.transform.position = new Vector3(collectablePoint.position.x, boxDistance * i, collectablePoint.position.z);
+            collectableBox.transform.localPosition = Vector3.zero;
+            //collectableBox.transform.position = new Vector3(collectablePoint.position.x, boxDistance * i, collectablePoint.position.z);
             //collectableBox.transform.eulerAngles = Vector3.zero;
-
+            collectableBox.SetActive(false);
             CreatedCollectables.Add(collectableBox);
             //collectableBox.transform.parent = this.transform;
         }
     }
 
-    
+    public IEnumerator AddToStickSide(int value, bool isLeft)
+    {
+        ActivateBoxes(value);
+        HandPoolManager hpm;
+        if (isLeft)
+            hpm = leftHand;
+        else
+            hpm = rightHand;
+        for (int i = 0; i < value; i++)
+        {
+            //CreatedCollectables[i].transform.localPosition = Vector3.zero;
+            var o = CreatedCollectables[i];
+            o.transform.parent = hpm.transform;
+            
+            o.transform.DOLocalMove(hpm.LastIndexPosition(), 0.5f).OnComplete(()=> {
+                hpm.GetBoxFromPool(); GetBackCollectable(o);
+
+            });
+            yield return new WaitForEndOfFrame();
+
+        }
+    }
+
+
+    private void GetBackCollectable(GameObject o) { o.transform.parent = this.transform;  o.transform.localPosition = Vector3.zero; o.SetActive(false); }
+    private void ActivateBoxes(int value) {
+        for (int i = 0; i < value; i++)
+        {
+            CreatedCollectables[i].SetActive(true);
+            CreatedCollectables[i].transform.localPosition = Vector3.zero;
+        }
+    }
+    /*
     public void GetCollectableToLeft(Transform LeftSide)
     {
         int leftStackCount = PlayerManager.instance.leftStack.Count;
@@ -83,7 +113,7 @@ public class CollectableManager : MonoBehaviour
         }
 
         CreatedCollectables.Clear();
-    }
+    }*/
 
     public void CreateMinusText()
     {
@@ -123,7 +153,7 @@ public class CollectableManager : MonoBehaviour
     }
 
     //burdan sonrası eski kod
-
+    /*
     public void TakeCollectableToLeft(List<GameObject> LeftSide, float duration)
     {
         int lastIndex = StickManager.instance.FindLastActiveIndexLeft();
@@ -166,7 +196,7 @@ public class CollectableManager : MonoBehaviour
         }
 
         CreatedCollectables.Clear();
-    }
+    }*/
 
     IEnumerator DelayActivated(float delay)
     {
