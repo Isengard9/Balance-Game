@@ -99,25 +99,30 @@ public class CollectableManager : MonoBehaviour
     public void DecreaseBoxesLeft(List<GameObject> leftSide)
     {
         int lastIndex = leftSide.Count - 1;
+        GameObject leftBox;
         Debug.Log(lastIndex);
         for (int i = 0; i < decreaseCount; i++)
         {
-            leftSide.RemoveAt(lastIndex - i);
-            Destroy(leftSide[lastIndex - i]);
+            leftBox = leftSide[lastIndex - i].gameObject;
+            leftSide.Remove(leftBox);
+            Destroy(leftBox);
         }
     }
 
     public void DecreaseBoxesRight(List<GameObject> rightSide)
     {
         int lastIndex = rightSide.Count - 1;
+        GameObject rightBox;
         Debug.Log(lastIndex);
         for (int i = 0; i < decreaseCount; i++)
         {
-            rightSide.RemoveAt(lastIndex - i);
-            Destroy(rightSide[lastIndex - i]);
+            rightBox = rightSide[lastIndex - i].gameObject;
+            rightSide.Remove(rightBox);
+            Destroy(rightBox);
         }
     }
 
+    //burdan sonrası eski kod
 
     public void TakeCollectableToLeft(List<GameObject> LeftSide, float duration)
     {
