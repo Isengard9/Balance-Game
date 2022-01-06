@@ -529,15 +529,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseStats:
-    MovementSpeed: 0
+    MovementSpeed: 5
     horizontalClamp: 0.5
     rotationClamp: 30
     height: 1
     PlayerSensitivity: 10
   touchState: 0
   leftStack: []
-  rightStack:
-  - {fileID: 0}
+  rightStack: []
+  LeftBoxPoint: {fileID: 437458339}
+  RightBoxPoint: {fileID: 1198673582}
   maxStackValue: 60
   maxDegree: 30
   Player: {fileID: 3141282670611708027}
@@ -948,7 +949,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 785263625}
-  m_LocalRotation: {x: 0.1237083, y: 0.000000017423677, z: -0.0000000021721385, w: 0.99231863}
+  m_LocalRotation: {x: 0.1237083, y: -0.000000017423677, z: 0.0000000021721385, w: 0.99231863}
   m_LocalPosition: {x: 0, y: 4.55, z: -5.12}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -1330,7 +1331,7 @@ Transform:
   m_GameObject: {fileID: 1406359675}
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: -1}
-  m_LocalScale: {x: 1, y: 20, z: 1}
+  m_LocalScale: {x: 1, y: 50, z: 1}
   m_Children:
   - {fileID: 626665904}
   m_Father: {fileID: 0}
@@ -1498,7 +1499,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1668259837}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 10}
+  m_LocalPosition: {x: 0, y: 0.5, z: 15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 301312191}
@@ -1869,7 +1870,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2039046876}
-  m_LocalRotation: {x: 0.1237083, y: 0.000000017423677, z: -0.0000000021721385, w: 0.99231863}
+  m_LocalRotation: {x: 0.1237083, y: -0.000000017423677, z: 0.0000000021721385, w: 0.99231863}
   m_LocalPosition: {x: 0, y: 4.55, z: -5.12}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []

@@ -36,13 +36,9 @@ public class PlayerManager : MonoBehaviour
         PlayerSensitivity = 10,
     };
 
-    Vector3 tempVectorA = Vector3.zero;
-    Vector3 tempVectorB = Vector3.zero;
-
-    float distanceFixer = 0;
-    GameObject offsetObj;
-
     #endregion
+
+
     #region Touch State
     public enum TouchState
     {
@@ -58,6 +54,8 @@ public class PlayerManager : MonoBehaviour
     public List<GameObject> leftStack = new List<GameObject>();
     public List<GameObject> rightStack = new List<GameObject>();
 
+    [SerializeField] Transform LeftBoxPoint, RightBoxPoint;
+
     [Range(10, 100)]
     [SerializeField] int maxStackValue = 60;
     [SerializeField] float maxDegree = 30;
@@ -67,6 +65,8 @@ public class PlayerManager : MonoBehaviour
     public GameObject Player;
     public GameObject Stick;
 
+    
+
     private void Awake()
     {
         if (instance == null)
@@ -75,8 +75,6 @@ public class PlayerManager : MonoBehaviour
 
     void Start()
     {
-        offsetObj = new GameObject();
-        offsetObj.name = "OffSet Obj";
         rb = GetComponent<Rigidbody>();
     }
 
@@ -89,6 +87,8 @@ public class PlayerManager : MonoBehaviour
         MoveForward();
         transform.DORotate(new Vector3(0, 0, CalcBalance()), 0.1f);
         SwipeMovement();
+
+        BoxesRotControl();
     }
 
     #region Player Movement
@@ -111,18 +111,26 @@ public class PlayerManager : MonoBehaviour
             if (FirstTouch > lastTouch)
             {
                 touchState = TouchState.left;
-                CollectableManager.instance.TakeCollectableToLeft(StickManager.instance.LeftBoxes, 0.3f);
+                //CollectableManager.instance.TakeCollectableToLeft(StickManager.instance.LeftBoxes, 0.3f);
+                if (isPlus)
+                    CollectableManager.instance.GetCollectableToLeft(LeftBoxPoint);
+                else
+                    CollectableManager.instance.DecreaseBoxesLeft(leftStack);
             }
 
             else
             {
                 touchState = TouchState.right;
-                CollectableManager.instance.TakeCollectableToRight(StickManager.instance.RightBoxes, 0.3f);
+                //CollectableManager.instance.TakeCollectableToRight(StickManager.instance.RightBoxes, 0.3f);
+                if (isPlus)
+                    CollectableManager.instance.GetCollectableToRight(RightBoxPoint);
+                else
+                    CollectableManager.instance.DecreaseBoxesRight(rightStack);
             }
 
             touchState = TouchState.none;
 
-            CollectableManager.instance.CreateCollectable();
+            RandomPicker();
         }
     }
 
@@ -146,10 +154,42 @@ public class PlayerManager : MonoBehaviour
         if (isRight)
             return rot;
         else
-            return rot * -1;
+            return (rot * -1);
     }
 
     #endregion
 
+    bool isPlus = true;
+    public void RandomPicker()
+    {
+        int r = Random.Range(0, 2);
 
+
+        if(r == 1)
+        {
+            isPlus = false;
+            CollectableManager.instance.CreateMinusText();
+        }
+
+        else
+        {
+            isPlus = true;
+            CollectableManager.instance.CreateCollectable();
+        }
+    }
+
+    public void BoxesRotControl()
+    {
+        for (int i = 0; i < leftStack.Count; i++)
+        {
+            leftStack[i].transform.localEulerAngles = Vector3.zero;
+        }
+
+        for (int i = 0; i < rightStack.Count; i++)
+        {
+            rightStack[i].transform.localEulerAngles = Vector3.zero;
+        }
+    }
+
+    
 }

@@ -24,7 +24,7 @@ public class StickManager : MonoBehaviour
 
     void Start()
     {
-        CreatePool();
+        //CreatePool();
     }
 
 
