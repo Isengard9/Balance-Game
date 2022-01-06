@@ -12,6 +12,9 @@ public class GameManager : MonoBehaviour
     #region Canvas
 
     [SerializeField] GameObject StartPanel;
+    [SerializeField] GameObject GamePanel;
+    [SerializeField] GameObject WinPanel;
+    [SerializeField] GameObject LostPanel;
 
     #endregion
 
@@ -39,9 +42,27 @@ public class GameManager : MonoBehaviour
 
     public void StartButton()
     {
+        StartPanel.SetActive(false);
+        GamePanel.SetActive(true);
         isGameStarted = true;
         isGameEnded = false;
-        StartPanel.SetActive(false);
+        
+    }
+
+    #endregion
+
+    #region OnLevel..
+
+    public void OnLevelSuccessed()
+    {
+        GamePanel.SetActive(false);
+        WinPanel.SetActive(true);
+    }
+
+    public void OnLevelFailed()
+    {
+        GamePanel.SetActive(false);
+        LostPanel.SetActive(true);
     }
 
     #endregion

@@ -61,7 +61,7 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] int maxStackValue = 60;
     [SerializeField] float maxDegree = 30;
 
-    Rigidbody rb;
+    //Rigidbody rb;
     
     public GameObject Player;
     public GameObject Stick;
@@ -76,7 +76,7 @@ public class PlayerManager : MonoBehaviour
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        //rb = GetComponent<Rigidbody>();
     }
 
 
@@ -86,7 +86,7 @@ public class PlayerManager : MonoBehaviour
             return;
 
         MoveForward();
-        transform.DORotate(new Vector3(0, 0, CalcBalance()), 0.1f);
+        transform.rotation = Quaternion.Euler(new Vector3(0, 0, CalcBalance()));
         SwipeMovement();
 
         //BoxesRotControl();
@@ -96,7 +96,8 @@ public class PlayerManager : MonoBehaviour
 
     public void MoveForward()
     {
-        rb.MovePosition(transform.position + Vector3.forward * baseStats.MovementSpeed * Time.deltaTime);
+        this.transform.position += Vector3.forward * baseStats.MovementSpeed * Time.deltaTime;
+        
     }
     
     public void SwipeMovement()
@@ -112,36 +113,16 @@ public class PlayerManager : MonoBehaviour
             if (FirstTouch > lastTouch)
             {
                 touchState = TouchState.left;
-                //CollectableManager.instance.TakeCollectableToLeft(StickManager.instance.LeftBoxes, 0.3f);
-                if (isPlus)
-                {
-                    //CollectableManager.instance.GetCollectableToLeft(LeftBoxPoint);
-                  StartCoroutine(  CollectableManager.instance.AddToStickSide(5, true));
-                }
-                else
-                {
-                    //CollectableManager.instance.DecreaseBoxesLeft(leftStack);
-                }
+                CollectableManager.instance.AddToStickSide(true);
             }
 
             else
             {
                 touchState = TouchState.right;
-                //CollectableManager.instance.TakeCollectableToRight(StickManager.instance.RightBoxes, 0.3f);
-                if (isPlus)
-                {
-                    //CollectableManager.instance.GetCollectableToLeft(LeftBoxPoint);
-                    StartCoroutine(CollectableManager.instance.AddToStickSide(5, false));
-                }
-                else
-                {
-                    //CollectableManager.instance.DecreaseBoxesLeft(leftStack);
-                }
+                CollectableManager.instance.AddToStickSide(false);
             }
 
             touchState = TouchState.none;
-
-            RandomPicker();
         }
     }
 
@@ -162,45 +143,18 @@ public class PlayerManager : MonoBehaviour
         }
         rot = ((leftHand._lastIndex- rightHand._lastIndex) * maxDegree) / maxStackValue;
 
-        if (isRight)
-            return rot;
-        else
-            return (rot * -1);
+        return rot;
+        
     }
 
     #endregion
 
-    bool isPlus = true;
-    public void RandomPicker()
+    private void OnCollisionEnter(Collision collision)
     {
-        int r = Random.Range(0, 2);
-
-
-        if(r == 1)
+        if (collision.transform.tag.Equals("Obstacle"))
         {
-            isPlus = false;
-            CollectableManager.instance.CreateMinusText();
-        }
-
-        else
-        {
-            isPlus = true;
-            CollectableManager.instance.CreateCollectable();
+            //ragdol olma ve fail fonk
         }
     }
-    /*
-    public void BoxesRotControl()
-    {
-        for (int i = 0; i < leftHand._lastIndex; i++)
-        {
-            leftHand[i].transform.localEulerAngles = Vector3.zero;
-        }
 
-        for (int i = 0; i < rightStack.Count; i++)
-        {
-            rightStack[i].transform.localEulerAngles = Vector3.zero;
-        }
-    }*/
-
-    
 }
