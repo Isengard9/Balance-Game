@@ -14,15 +14,6 @@ public class PlayerManager : MonoBehaviour
         [Tooltip("Player's forward speed")]
         public float MovementSpeed;
 
-        [Tooltip("Mouse X input clamp value")]
-        public float horizontalClamp;
-
-        [Tooltip("Stick and Player Z rotation")]
-        public float rotationClamp;
-
-        [Tooltip("Player's must be y value")]
-        public float height;
-
         [Tooltip("Swerve touch sensitivity")]
         public float PlayerSensitivity;
     }
@@ -30,9 +21,6 @@ public class PlayerManager : MonoBehaviour
     public PlayerManager.Stats baseStats = new PlayerManager.Stats
     {
         MovementSpeed = 10,
-        horizontalClamp = 0.5f,
-        rotationClamp = 30,
-        height = 1,
         PlayerSensitivity = 10,
     };
 
@@ -61,11 +49,10 @@ public class PlayerManager : MonoBehaviour
 
     Rigidbody rb;
 
-    //public GameObject Player;
+    [SerializeField] GameObject LookAtObj;
     [SerializeField] Animator playerAnim;
 
     [SerializeField] List<Rigidbody> Rigidbodies = new List<Rigidbody>();
-
 
     private void Awake()
     {
@@ -95,12 +82,17 @@ public class PlayerManager : MonoBehaviour
 
     #region Player Movement
 
+    /// <summary>
+    /// Player's forward movement
+    /// </summary>
     public void MoveForward()
     {
         this.transform.position += Vector3.forward * baseStats.MovementSpeed * Time.deltaTime;
-        
     }
-    
+
+    /// <summary>
+    /// Controls what happens when swiped right or left
+    /// </summary>
     public void SwipeMovement()
     {
         if (Input.GetMouseButtonDown(0))
@@ -127,12 +119,18 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// calculates x position based on screen width
+    /// </summary>
     public float CalculateXPos()
     {
         Vector3 location = Input.mousePosition;
         return (location.x / (Screen.width / (baseStats.PlayerSensitivity + Mathf.Abs(-baseStats.PlayerSensitivity)))) - 5f;
     }
-    
+
+    /// <summary>
+    /// Calculates rotation based on incoming weights
+    /// </summary>
     public float CalcBalance()
     {
         float rot = 0;
@@ -150,6 +148,10 @@ public class PlayerManager : MonoBehaviour
 
     #endregion
 
+    /// <summary>
+    /// Finds rigidbodies in children under player and adds them to the list
+    /// </summary>
+    /// <param name="researchedObject"></param>
     void FindRb(GameObject researchedObject)
     {
         if (researchedObject.GetComponent<Rigidbody>() != null)
@@ -161,6 +163,9 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Ragdoll activation process
+    /// </summary>
     void RagdollActivated()
     {
         foreach (var r in Rigidbodies)
@@ -169,19 +174,32 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Controls the processes that should happen when it fails
+    /// </summary>
     void FailTime()
     {
+        LookAtObj.transform.parent = null;
         playerAnim.enabled = false;
         playerAnim.gameObject.GetComponent<RootMotion.FinalIK.FullBodyBipedIK>().enabled = false;
+        rb.useGravity = true;
+        rb.constraints = RigidbodyConstraints.None;
+        this.GetComponent<Collider>().isTrigger = true;
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.transform.tag.Equals("Obstacle"))
         {
+            Debug.Log("obstacle");
             FailTime();
             RagdollActivated();
             GameManager.instance.OnLevelFailed();
+        }
+
+        if (other.transform.tag.Equals("Finish"))
+        {
+            GameManager.instance.OnLevelSuccessed();
         }
     }
 

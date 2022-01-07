@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
 
     #region Buttons
 
+
     public void StartButton()
     {
         StartPanel.SetActive(false);
@@ -47,6 +48,16 @@ public class GameManager : MonoBehaviour
         isGameStarted = true;
         isGameEnded = false;
         
+    }
+
+    public void NextButton()
+    {
+
+    }
+
+    public void RetryButton()
+    {
+
     }
 
     #endregion
@@ -57,6 +68,8 @@ public class GameManager : MonoBehaviour
     {
         GamePanel.SetActive(false);
         WinPanel.SetActive(true);
+
+        isGameEnded = true;
     }
 
     public void OnLevelFailed()

@@ -24,6 +24,8 @@ public class CollectableManager : MonoBehaviour
     [SerializeField] HandPoolManager leftHand;
     [SerializeField] HandPoolManager rightHand;
 
+    [SerializeField] Transform Finish;
+
     private void Awake()
     {
         if (instance == null)
@@ -33,12 +35,16 @@ public class CollectableManager : MonoBehaviour
     void Start()
     {
         player = PlayerManager.instance.gameObject;
+        Finish = GameObject.Find("FinishParent").transform;
 
         CreateCollectable();
 
         CreateNewValue();
     }
 
+    /// <summary>
+    /// Creates a collectable pool and adds it to the list
+    /// </summary>
     public void CreateCollectable()
     {
         int poolCount = 30;
@@ -55,39 +61,54 @@ public class CollectableManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Sets the collectable number randomly
+    /// </summary>
     public void CreateNewValue()
     {
-        collectableCount = Random.Range(-15, 15);
-
-        int smallestHand = 0;
-
-        if (leftHand._lastIndex < rightHand._lastIndex)
-            smallestHand = leftHand._lastIndex;
-        else
-            smallestHand = rightHand._lastIndex;
-
-        if (collectableCount < 0)
+        if (!isFinishClose())
         {
-            if ((collectableCount * -1) < smallestHand)
+            collectableCount = Random.Range(-15, 15);
+
+            int smallestHand = 0;
+
+            if (leftHand._lastIndex < rightHand._lastIndex)
+                smallestHand = leftHand._lastIndex;
+            else
+                smallestHand = rightHand._lastIndex;
+
+            if (collectableCount < 0)
             {
-                //isleme devam et
+                if ((collectableCount * -1) < smallestHand)
+                {
+                    this.transform.position = new Vector3(0, transform.position.y, SetPosition());
+                }
+
+                else
+                {
+                    CreateNewValue();
+                }
             }
+
+            else if (collectableCount == 0)
+                CreateNewValue();
 
             else
             {
-                CreateNewValue();
+                ActivateBoxes();
             }
         }
 
-        else if (collectableCount == 0)
-            CreateNewValue();
-
         else
         {
-            ActivateBoxes();
+            CloseEverything();
         }
+        
     }
 
+    /// <summary>
+    /// Activates boxes according to collectableCount
+    /// </summary>
     public void ActivateBoxes()
     {
         this.transform.position = new Vector3(0, transform.position.y, SetPosition());
@@ -101,6 +122,9 @@ public class CollectableManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// The process of going which side the boxes need to be positioned
+    /// </summary>
     public void AddToStickSide( bool isLeft)
     {
         ActivateBoxes(collectableCount);
@@ -115,9 +139,11 @@ public class CollectableManager : MonoBehaviour
         else
             StartCoroutine(removeSide(hpm, collectableCount));
 
-       
     }
 
+    /// <summary>
+    /// Increment movement of Boxes
+    /// </summary>
     IEnumerator addSide(HandPoolManager hpm,int value)
     {
         for (int i = 0; i < value; i++)
@@ -125,6 +151,7 @@ public class CollectableManager : MonoBehaviour
             //CreatedCollectables[i].transform.localPosition = Vector3.zero;
             var o = CreatedCollectables[i];
             o.transform.parent = hpm.transform;
+            o.GetComponent<Collider>().enabled = false;
 
             o.transform.DOLocalMove(hpm.LastIndexPosition(), 0.5f).OnComplete(() => {
                 hpm.GetBoxFromPool(); GetBackCollectable(o);
@@ -136,6 +163,9 @@ public class CollectableManager : MonoBehaviour
         CreateNewValue();
     }
 
+    /// <summary>
+    /// Decrement movement of boxes
+    /// </summary>
     IEnumerator removeSide(HandPoolManager hpm,int value)
     {
         value *= -1;
@@ -149,6 +179,9 @@ public class CollectableManager : MonoBehaviour
 
     private void GetBackCollectable(GameObject o) { o.transform.parent = this.transform;  o.transform.localPosition = Vector3.zero; o.SetActive(false); }
 
+    /// <summary>
+    /// Activates the boxes
+    /// </summary>
     private void ActivateBoxes(int value) {
         for (int i = 0; i < value; i++)
         {
@@ -156,12 +189,35 @@ public class CollectableManager : MonoBehaviour
             CreatedCollectables[i].transform.localPosition = Vector3.zero;
         }
     }
-   
+
+    /// <summary>
+    /// Sets the position of the boxes
+    /// </summary>
     float SetPosition()
     {
         float PositionZ = player.transform.position.z + offset;
 
         return PositionZ;
+    }
+
+    /// <summary>
+    /// Checks if the finish is close
+    /// </summary>
+    private bool isFinishClose()
+    {
+        if (Finish.position.z - transform.position.z <= 15)
+            return true;
+
+        else
+            return false;
+    }
+
+    private void CloseEverything()
+    {
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            transform.GetChild(i).gameObject.SetActive(false);
+        }
     }
    
 }

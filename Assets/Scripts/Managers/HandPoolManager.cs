@@ -63,6 +63,11 @@ public class HandPoolManager : MonoBehaviour
         else
             Debug.Log("Player failed");
     }
+
+    /// <summary>
+    /// Finds the last active index in the list
+    /// </summary>
+    /// <returns></returns>
     public int FindLastIndex()
     {
         int index = 0;
@@ -79,6 +84,10 @@ public class HandPoolManager : MonoBehaviour
         return index;
     }
 
+    /// <summary>
+    /// Finds the last active index's position in the list
+    /// </summary>
+    /// <returns></returns>
     public Vector3 LastIndexPosition()
     {
       
