@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -16,10 +18,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject WinPanel;
     [SerializeField] GameObject LostPanel;
 
+    [SerializeField] Slider balanceBar;
+
     #endregion
 
 
-    public int RightBoxCount, LeftBoxCount = 0;
+    [SerializeField] float minMaxRotValue = 50;
 
     private void Awake()
     {
@@ -35,11 +39,29 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        
+        MaxRotationControl();
+    }
+
+    /// <summary>
+    /// Syncs balanceBar with rotation
+    /// </summary>
+    public void BalanceBarControl(float value)
+    {
+        balanceBar.value = value * -1;
+    }
+
+    /// <summary>
+    /// Controls the rotation of player
+    /// </summary>
+    public void MaxRotationControl()
+    {
+        if(balanceBar.value >= minMaxRotValue || balanceBar.value <= (minMaxRotValue * -1))
+        {
+            OnLevelFailed();
+        }
     }
 
     #region Buttons
-
 
     public void StartButton()
     {
@@ -52,12 +74,14 @@ public class GameManager : MonoBehaviour
 
     public void NextButton()
     {
-
+        WinPanel.SetActive(false);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void RetryButton()
     {
-
+        LostPanel.SetActive(false);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     #endregion
@@ -66,6 +90,8 @@ public class GameManager : MonoBehaviour
 
     public void OnLevelSuccessed()
     {
+        PlayerManager.instance.FinishProcess();
+
         GamePanel.SetActive(false);
         WinPanel.SetActive(true);
 
@@ -74,6 +100,8 @@ public class GameManager : MonoBehaviour
 
     public void OnLevelFailed()
     {
+        PlayerManager.instance.FailProcess();
+
         GamePanel.SetActive(false);
         LostPanel.SetActive(true);
 

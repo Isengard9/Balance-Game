@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using RootMotion;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -52,6 +53,9 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] GameObject LookAtObj;
     [SerializeField] Animator playerAnim;
 
+    RootMotion.FinalIK.FullBodyBipedIK bipedIK;
+    [SerializeField] float leftFootWeight, rightFootWeight = 0;
+
     [SerializeField] List<Rigidbody> Rigidbodies = new List<Rigidbody>();
 
     private void Awake()
@@ -65,9 +69,16 @@ public class PlayerManager : MonoBehaviour
         rb = GetComponent<Rigidbody>();
 
         FindRb(playerAnim.gameObject);
+
+        bipedIK = playerAnim.gameObject.GetComponent<RootMotion.FinalIK.FullBodyBipedIK>();
+        leftFootWeight = bipedIK.solver.leftFootEffector.positionWeight;
+        rightFootWeight = bipedIK.solver.rightFootEffector.positionWeight;
+
+        Debug.Log(playerAnim.gameObject.GetComponent<RootMotion.FinalIK.FullBodyBipedIK>().solver.rightFootEffector.positionWeight);
+
     }
 
-
+    bool isGameStarted = false;
     void Update()
     {
         if (GameManager.isGameEnded || !GameManager.isGameStarted)
@@ -98,9 +109,13 @@ public class PlayerManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             FirstTouch = CalculateXPos();
+            if (!isGameStarted)
+                isGameStarted = true;
         }
         if (Input.GetMouseButtonUp(0))
         {
+            if (!isGameStarted)
+                return;
             lastTouch = CalculateXPos();
 
             if (FirstTouch > lastTouch)
@@ -142,6 +157,8 @@ public class PlayerManager : MonoBehaviour
         }
         rot = ((leftHand._lastIndex- rightHand._lastIndex) * maxDegree) / maxStackValue;
 
+        GameManager.instance.BalanceBarControl(rot);
+        FootUp(rot);
         return rot;
         
     }
@@ -187,13 +204,90 @@ public class PlayerManager : MonoBehaviour
         this.GetComponent<Collider>().isTrigger = true;
     }
 
+    /// <summary>
+    /// FinalIK process
+    /// </summary>
+    void FootUp(float rotValue)
+    {
+        float weight = 0;
+        weight = rotValue * 0.02f;
+        weight = Mathf.Abs(weight);
+        if(rotValue > 0)
+        {
+            //sag ayak
+            bipedIK.solver.rightFootEffector.positionWeight = weight;
+            bipedIK.solver.leftFootEffector.positionWeight = 0;
+
+            bipedIK.solver.rightFootEffector.rotationWeight = weight;
+            bipedIK.solver.leftFootEffector.rotationWeight = 0;
+        }
+
+        else if(rotValue < 0)
+        {
+            //sol ayak
+            bipedIK.solver.leftFootEffector.positionWeight = weight;
+            bipedIK.solver.rightFootEffector.positionWeight = 0;
+
+            bipedIK.solver.leftFootEffector.rotationWeight = weight;
+            bipedIK.solver.rightFootEffector.rotationWeight = 0;
+        }
+
+        if(weight < 0.4f)
+        {
+            playerAnim.enabled = true;
+        }
+
+        else
+        {
+            playerAnim.enabled = false;
+        }
+        /*if(rotValue >= minMaxValue)
+        {
+            leftFootWeight = 0;
+            rightFootWeight = 1;
+            bipedIK.solver.leftFootEffector.positionWeight = leftFootWeight;
+            bipedIK.solver.rightFootEffector.positionWeight = rightFootWeight;
+            //playerAnim.enabled = false;
+            Debug.Log("sag ayak kalkmalı");
+        }
+
+        else if(rotValue <= (minMaxValue * -1))
+        {
+            rightFootWeight = 0;
+            leftFootWeight = 1;
+            bipedIK.solver.leftFootEffector.positionWeight = leftFootWeight;
+            bipedIK.solver.rightFootEffector.positionWeight = rightFootWeight;
+            //playerAnim.enabled = false;
+            Debug.Log("sol ayak kalkmalı");
+        }
+
+        else
+        {
+            leftFootWeight = 0;
+            rightFootWeight = 0;
+            bipedIK.solver.leftFootEffector.positionWeight = leftFootWeight;
+            bipedIK.solver.rightFootEffector.positionWeight = rightFootWeight;
+            //playerAnim.enabled = true;
+            Debug.Log("denge");
+        }*/
+    }
+
+    public void FailProcess()
+    {
+        FailTime();
+        RagdollActivated();
+    }
+
+    public void FinishProcess()
+    {
+        transform.eulerAngles = Vector3.zero;
+        playerAnim.enabled = false;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.transform.tag.Equals("Obstacle"))
         {
-            Debug.Log("obstacle");
-            FailTime();
-            RagdollActivated();
             GameManager.instance.OnLevelFailed();
         }
 

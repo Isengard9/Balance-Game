@@ -25,6 +25,7 @@ public class CollectableManager : MonoBehaviour
     [SerializeField] HandPoolManager rightHand;
 
     [SerializeField] Transform Finish;
+    [SerializeField] GameObject collisionHandler;
 
     private void Awake()
     {
@@ -146,6 +147,8 @@ public class CollectableManager : MonoBehaviour
     /// </summary>
     IEnumerator addSide(HandPoolManager hpm,int value)
     {
+        collisionHandler.GetComponent<Collider>().enabled = false;
+
         for (int i = 0; i < value; i++)
         {
             //CreatedCollectables[i].transform.localPosition = Vector3.zero;
@@ -160,6 +163,8 @@ public class CollectableManager : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         yield return new WaitForSeconds(0.5f);
+        collisionHandler.GetComponent<Collider>().enabled = true;
+
         CreateNewValue();
     }
 
@@ -177,7 +182,10 @@ public class CollectableManager : MonoBehaviour
         CreateNewValue();
     }
 
-    private void GetBackCollectable(GameObject o) { o.transform.parent = this.transform;  o.transform.localPosition = Vector3.zero; o.SetActive(false); }
+    /// <summary>
+    /// Reset the object that came out of the pool and add it to the pool.
+    /// </summary>
+    private void GetBackCollectable(GameObject o) { o.transform.parent = this.transform;  o.transform.localPosition = Vector3.zero; o.transform.localEulerAngles = Vector3.zero; o.SetActive(false); }
 
     /// <summary>
     /// Activates the boxes
@@ -212,6 +220,9 @@ public class CollectableManager : MonoBehaviour
             return false;
     }
 
+    /// <summary>
+    /// Close every child
+    /// </summary>
     private void CloseEverything()
     {
         for (int i = 0; i < transform.childCount; i++)
