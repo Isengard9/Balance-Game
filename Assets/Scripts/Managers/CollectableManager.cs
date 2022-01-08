@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using TMPro;
+
+/// <summary>
+/// Collectable Manager controls the collectable boxes and their behaviours
+/// </summary>
 public class CollectableManager : MonoBehaviour
 {
     public static CollectableManager instance;
@@ -54,11 +58,9 @@ public class CollectableManager : MonoBehaviour
         {
             GameObject collectableBox = Instantiate(collectablePrefab, collectablePoint.position, Quaternion.identity, this.transform);
             collectableBox.transform.localPosition = Vector3.zero;
-            //collectableBox.transform.position = new Vector3(collectablePoint.position.x, boxDistance * i, collectablePoint.position.z);
-            //collectableBox.transform.eulerAngles = Vector3.zero;
+            
             collectableBox.SetActive(false);
             CreatedCollectables.Add(collectableBox);
-            //collectableBox.transform.parent = this.transform;
         }
     }
 
@@ -136,7 +138,7 @@ public class CollectableManager : MonoBehaviour
             hpm = rightHand;
 
         if (collectableCount > 0)
-            StartCoroutine(addSide(hpm, collectableCount));
+            StartCoroutine(AddSide(hpm, collectableCount));
         else
             StartCoroutine(removeSide(hpm, collectableCount));
 
@@ -145,13 +147,12 @@ public class CollectableManager : MonoBehaviour
     /// <summary>
     /// Increment movement of Boxes
     /// </summary>
-    IEnumerator addSide(HandPoolManager hpm,int value)
+    IEnumerator AddSide(HandPoolManager hpm,int value)
     {
         collisionHandler.GetComponent<Collider>().enabled = false;
 
         for (int i = 0; i < value; i++)
         {
-            //CreatedCollectables[i].transform.localPosition = Vector3.zero;
             var o = CreatedCollectables[i];
             o.transform.parent = hpm.transform;
             o.GetComponent<Collider>().enabled = false;

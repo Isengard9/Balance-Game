@@ -2,8 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
-using RootMotion;
+using RootMotion.FinalIK;
 
+/// <summary>
+/// Player Manager controls the Player's behaviours (movement, rotation, balance, trigger) and mouse touches
+/// </summary>
 public class PlayerManager : MonoBehaviour
 {
     public static PlayerManager instance;
@@ -53,7 +56,7 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] GameObject LookAtObj;
     [SerializeField] Animator playerAnim;
 
-    RootMotion.FinalIK.FullBodyBipedIK bipedIK;
+    FullBodyBipedIK bipedIK;
     [SerializeField] float leftFootWeight, rightFootWeight = 0;
 
     [SerializeField] List<Rigidbody> Rigidbodies = new List<Rigidbody>();
@@ -70,12 +73,9 @@ public class PlayerManager : MonoBehaviour
 
         FindRb(playerAnim.gameObject);
 
-        bipedIK = playerAnim.gameObject.GetComponent<RootMotion.FinalIK.FullBodyBipedIK>();
+        bipedIK = playerAnim.gameObject.GetComponent<FullBodyBipedIK>();
         leftFootWeight = bipedIK.solver.leftFootEffector.positionWeight;
         rightFootWeight = bipedIK.solver.rightFootEffector.positionWeight;
-
-        Debug.Log(playerAnim.gameObject.GetComponent<RootMotion.FinalIK.FullBodyBipedIK>().solver.rightFootEffector.positionWeight);
-
     }
 
     bool isGameStarted = false;
@@ -198,7 +198,7 @@ public class PlayerManager : MonoBehaviour
     {
         LookAtObj.transform.parent = null;
         playerAnim.enabled = false;
-        playerAnim.gameObject.GetComponent<RootMotion.FinalIK.FullBodyBipedIK>().enabled = false;
+        playerAnim.gameObject.GetComponent<FullBodyBipedIK>().enabled = false;
         rb.useGravity = true;
         rb.constraints = RigidbodyConstraints.None;
         this.GetComponent<Collider>().isTrigger = true;
@@ -241,35 +241,7 @@ public class PlayerManager : MonoBehaviour
         {
             playerAnim.enabled = false;
         }
-        /*if(rotValue >= minMaxValue)
-        {
-            leftFootWeight = 0;
-            rightFootWeight = 1;
-            bipedIK.solver.leftFootEffector.positionWeight = leftFootWeight;
-            bipedIK.solver.rightFootEffector.positionWeight = rightFootWeight;
-            //playerAnim.enabled = false;
-            Debug.Log("sag ayak kalkmalı");
-        }
-
-        else if(rotValue <= (minMaxValue * -1))
-        {
-            rightFootWeight = 0;
-            leftFootWeight = 1;
-            bipedIK.solver.leftFootEffector.positionWeight = leftFootWeight;
-            bipedIK.solver.rightFootEffector.positionWeight = rightFootWeight;
-            //playerAnim.enabled = false;
-            Debug.Log("sol ayak kalkmalı");
-        }
-
-        else
-        {
-            leftFootWeight = 0;
-            rightFootWeight = 0;
-            bipedIK.solver.leftFootEffector.positionWeight = leftFootWeight;
-            bipedIK.solver.rightFootEffector.positionWeight = rightFootWeight;
-            //playerAnim.enabled = true;
-            Debug.Log("denge");
-        }*/
+        
     }
 
     public void FailProcess()

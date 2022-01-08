@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Game Manager controls the UI and the fail, success events
+/// </summary>
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
